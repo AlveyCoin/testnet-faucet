@@ -1,7 +1,8 @@
-const EthereumTx = require('ethereumjs-tx')
+const EthereumTransaction = require('ethereumjs-tx').Transaction
 const { generateErrorResponse } = require('../helpers/generate-response')
 const  { validateCaptcha } = require('../helpers/captcha-helper')
 const { debug } = require('../helpers/debug')
+const Common = require('@ethereumjs/common').default
 
 module.exports = function (app) {
 	const config = app.config
@@ -41,7 +42,7 @@ module.exports = function (app) {
 	app.get('/health', async function(request, response) {
 		let balanceInWei
 		let balanceInEth
-		const address = config.Ethereum[config.environment].account
+		const address = config.ALV[config.environment].account
 		try {
 			balanceInWei = await web3.eth.getBalance(address)
 			balanceInEth = await web3.utils.fromWei(balanceInWei, "ether")
@@ -67,7 +68,7 @@ module.exports = function (app) {
 	}
 
 	async function sendALVToRecipient(web3, receiver, response, isDebug) {
-		let senderPrivateKey = config.Ethereum[config.environment].privateKey
+		let senderPrivateKey = config.ALV[config.environment].privateKey
 		const privateKeyHex = Buffer.from(senderPrivateKey, 'hex')
 		if (!web3.utils.isAddress(receiver)) {
 			return generateErrorResponse(response, {message: messages.INVALID_ADDRESS})
@@ -75,21 +76,22 @@ module.exports = function (app) {
 		
 		const gasPrice = web3.utils.toWei('1', 'gwei')
 		const gasPriceHex = web3.utils.toHex(gasPrice)
-		const gasLimitHex = web3.utils.toHex(config.Ethereum.gasLimit)
-		const nonce = await web3.eth.getTransactionCount(config.Ethereum[config.environment].account)
+		const gasLimitHex = web3.utils.toHex(config.ALV.gasLimit)
+		const nonce = await web3.eth.getTransactionCount(config.ALV[config.environment].account)
 		const nonceHex = web3.utils.toHex(nonce)
 		const BN = web3.utils.BN
-		const ethToSend = web3.utils.toWei(new BN(config.Ethereum.milliEtherToTransfer), "milliether")
+		const ethToSend = web3.utils.toWei(new BN(config.ALV.milliAlvToTransfer), "milliether")
 		const rawTx = {
 		  nonce: nonceHex,
 		  gasPrice: gasPriceHex,
 		  gasLimit: gasLimitHex,
 		  to: receiver, 
 		  value: ethToSend,
-		  data: '0x00'
+		  data: '0x00',
 		}
 
-		const tx = new EthereumTx(rawTx)
+		const common = Common.custom({ chainId: 3798 })
+                const tx = new EthereumTransaction(rawTx,{common})
 		tx.sign(privateKeyHex)
 
 		const serializedTx = tx.serialize()

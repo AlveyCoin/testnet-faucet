@@ -25,7 +25,7 @@
   },
   "Ethereum": {
     "etherToTransfer": "The number of milliEther to be sent from the faucet. For example, 5000",
-    "gasLimit": "Transaction gas limit, for example, 21000",
+    "gasLimit": "Transaction gas limit, for example, 100000",
     "prod": {
       "rpc": "JSON RPC endpoint. For example, https://rpctestnet.alveycoin.com/rpc",
       "account": "The address from which the funds will be drained",

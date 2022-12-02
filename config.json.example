@@ -4,9 +4,9 @@
   "Captcha": {
     "secret": ""
   },
-  "Ethereum": {
-    "milliEtherToTransfer": 5000,
-    "gasLimit": "21000",
+  "ALV": {
+    "milliAlvToTransfer": 5000,
+    "gasLimit": "100000",
     "prod": {
       "rpc": "https://rpctestnet.alveycoin.com/rpc",
       "account": "",
